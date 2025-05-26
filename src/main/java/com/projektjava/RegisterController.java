@@ -46,7 +46,6 @@ public class RegisterController {
 
             if (rowsInserted > 0) {
                 rejestracjaWiadomoscLabel.setText("Rejestracja udana!");
-                // Opcjonalnie: wyczyść pola po sukcesie
                 registerNameField.clear();
                 registerEmailField.clear();
                 registerPasswordField.clear();

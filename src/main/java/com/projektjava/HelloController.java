@@ -1,6 +1,5 @@
 package com.projektjava;
 import com.projektjava.db.DatabaseConnector;
-import com.projektjava.MainController;
 import java.io.IOException;
 import java.sql.*;
 import javafx.fxml.FXML;
@@ -51,14 +50,14 @@ public class HelloController {
             if (rs.next()) {
                 String imie = rs.getString("imie");
                 String emailZBazy = rs.getString("email");
+                int id_uzytkownika = rs.getInt("id_uzytkownika");
 
-                // Załaduj main-view.fxml
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/projektjava/main-view.fxml"));
                 Parent root = loader.load();
 
                 // Przekaż dane do kontrolera głównego
                 com.projektjava.MainController mainController = loader.getController();
-                mainController.ustawDaneUzytkownika(imie, emailZBazy);
+                mainController.ustawDaneUzytkownika(imie, emailZBazy, id_uzytkownika);
 
                 // Otwórz nowe okno
                 Stage stage = new Stage();
