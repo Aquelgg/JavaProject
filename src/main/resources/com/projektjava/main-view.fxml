@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.projektjava.MainController"
+      alignment="CENTER" spacing="15" prefWidth="300" prefHeight="200">
+
+    <Label text="Witaj!" style="-fx-font-size: 16px;" />
+
+    <Label fx:id="imieLabel" text="Imię: " />
+    <Label fx:id="emailLabel" text="Email: " />
+
+    <Button text="Wyloguj" onAction="#wyloguj" />
+</VBox>

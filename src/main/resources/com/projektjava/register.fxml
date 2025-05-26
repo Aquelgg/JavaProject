@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.projektjava.RegisterController"
+      alignment="CENTER" spacing="10" prefWidth="300" prefHeight="300">
+
+    <TextField fx:id="registerNameField" promptText="Imię" />
+    <TextField fx:id="registerEmailField" promptText="Email" />
+    <PasswordField fx:id="registerPasswordField" promptText="Hasło" />
+
+    <Button text="Zarejestruj" onAction="#obsluzRejestracje"/>
+    <Label fx:id="rejestracjaWiadomoscLabel"/>
+</VBox>

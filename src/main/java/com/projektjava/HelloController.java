@@ -1,9 +1,15 @@
 package com.projektjava;
 import com.projektjava.db.DatabaseConnector;
+import com.projektjava.MainController;
+import java.io.IOException;
 import java.sql.*;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 public class HelloController {
 
@@ -17,24 +23,58 @@ public class HelloController {
     private Label errorLabel; //etykieta wyświetlająca komunikaty pod przyciskiem zaloguj
 
     @FXML
-    private void handleLogin() { //ręczne logowanie do bazy danych(okienko)
+    private void otworzOknoRejestracji() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/projektjava/register.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Rejestracja");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleLogin() {
         String email = loginField.getText();
-        String password = passwordField.getText();//te obie komedy pobierają wartości wpisane przez użytkownika
+        String password = passwordField.getText();
 
         try (Connection conn = DatabaseConnector.connect()) {
-            String query = "SELECT * FROM Uzytkownik WHERE email = ? AND haslo = ?";//zapytanie sprawdzające czy istnieje użytkownik o podanych haśle
+            String query = "SELECT * FROM Uzytkownik WHERE email = ? AND haslo = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, email);
             stmt.setString(2, password);
 
-            ResultSet rs = stmt.executeQuery(); //wykonanie zadania
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                errorLabel.setText("Zalogowano!");
+                String imie = rs.getString("imie");
+                String emailZBazy = rs.getString("email");
+
+                // Załaduj main-view.fxml
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/projektjava/main-view.fxml"));
+                Parent root = loader.load();
+
+                // Przekaż dane do kontrolera głównego
+                com.projektjava.MainController mainController = loader.getController();
+                mainController.ustawDaneUzytkownika(imie, emailZBazy);
+
+                // Otwórz nowe okno
+                Stage stage = new Stage();
+                stage.setTitle("Panel Główny");
+                stage.setScene(new Scene(root));
+                stage.show();
+
+                // Zamknij okno logowania
+                Stage currentStage = (Stage) loginField.getScene().getWindow();
+                currentStage.close();
+
             } else {
                 errorLabel.setText("Błąd logowania.");
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             errorLabel.setText("Błąd połączenia.");
             e.printStackTrace();
         }
