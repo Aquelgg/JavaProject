@@ -17,7 +17,7 @@
            <PasswordField fx:id="passwordField" promptText="Hasło" />
 
            <Button onAction="#handleLogin" text="Zaloguj" />
-           <Label fx:id="errorLabel" textFill="red" />
+           <Label fx:id="errorLabel" textFill="red"/>
        </VBox>
        <Button text="Rejestracja" onAction="#otworzOknoRejestracji" />
    </VBox>
