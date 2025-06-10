@@ -33,45 +33,51 @@
 
     <Separator />
 
-    <Label text="Dodaj Nowe Zadanie:" style="-fx-font-weight: bold;"/>
-    <VBox alignment="CENTER_LEFT" spacing="10" maxWidth="500">
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label text="Tytuł:" prefWidth="120"/>
-            <TextField fx:id="tytulZadaniaField" promptText="Wprowadź tytuł zadania" HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label text="Opis:" prefWidth="120"/>
-            <TextArea fx:id="opisZadaniaArea" promptText="Wprowadź opis zadania" prefRowCount="3" HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label text="Data wykonania:" prefWidth="120"/>
-            <DatePicker fx:id="dataWykonaniaPicker" promptText="Wybierz datę" HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <Button onAction="#dodajZadanie" text="Dodaj Zadanie" />
-    </VBox>
+    <TitledPane text="Dodaj Nowe Zadanie:" animated="false" style="-fx-font-weight: bold;">
+        <content>
+            <VBox alignment="CENTER_LEFT" spacing="10" maxWidth="500">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Tytuł:" prefWidth="120"/>
+                    <TextField fx:id="tytulZadaniaField" promptText="Wprowadź tytuł zadania" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Opis:" prefWidth="120"/>
+                    <TextArea fx:id="opisZadaniaArea" promptText="Wprowadź opis zadania" prefRowCount="3" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Data wykonania:" prefWidth="120"/>
+                    <DatePicker fx:id="dataWykonaniaPicker" promptText="Wybierz datę" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <Button onAction="#dodajZadanie" text="Dodaj Zadanie" />
+            </VBox>
+        </content>
+    </TitledPane>
 
     <Separator />
 
-    <Label text="Edytuj Istniejące Zadanie:" style="-fx-font-weight: bold;"/>
-    <VBox alignment="CENTER_LEFT" spacing="10" maxWidth="500">
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label text="Tytuł:" prefWidth="120"/>
-            <TextField fx:id="tytulEdycjaField" promptText="Wprowadź nowy tytuł" HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label text="Opis:" prefWidth="120"/>
-            <TextArea fx:id="opisEdycjaArea" promptText="Wprowadź nowy opis" prefRowCount="3" HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label text="Nowa data wyk.:" prefWidth="120"/>
-            <DatePicker fx:id="dataWykonaniaEdycjaPicker" promptText="Wybierz nową datę" HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label text="Nowy status:" prefWidth="120"/>
-            <ComboBox fx:id="statusEdycjaComboBox" promptText="Wybierz status" HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <Button onAction="#edytujZadanie" text="Zapisz Edycję" />
-    </VBox>
+    <TitledPane text="Edytuj Istniejące Zadanie:" animated="false">
+        <content>
+            <VBox alignment="CENTER_LEFT" spacing="10" maxWidth="500">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Tytuł:" prefWidth="120"/>
+                    <TextField fx:id="tytulEdycjaField" promptText="Wprowadź nowy tytuł" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Opis:" prefWidth="120"/>
+                    <TextArea fx:id="opisEdycjaArea" promptText="Wprowadź nowy opis" prefRowCount="3" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Nowa data wyk.:" prefWidth="120"/>
+                    <DatePicker fx:id="dataWykonaniaEdycjaPicker" promptText="Wybierz nową datę" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Nowy status:" prefWidth="120"/>
+                    <ComboBox fx:id="statusEdycjaComboBox" promptText="Wybierz status" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <Button onAction="#edytujZadanie" text="Zapisz Edycję" />
+            </VBox>
+        </content>
+    </TitledPane>
 
     <Separator />
 
