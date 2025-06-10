@@ -23,8 +23,14 @@
 
     <Separator />
 
-    <Label text="Twoje Zadania:" style="-fx-font-weight: bold;"/>
-    <ListView fx:id="zadaniaListView" prefHeight="250" prefWidth="500" />
+    <TableView fx:id="zadaniaTableView">
+        <columns>
+            <TableColumn fx:id="idZadaniaColumn" text="ID" visible="false"/> <TableColumn fx:id="tytulColumn" text="Tytuł"/>
+            <TableColumn fx:id="opisColumn" text="Opis"/>
+            <TableColumn fx:id="dataWykonaniaColumn" text="Data Wykonania"/>
+            <TableColumn fx:id="statusColumn" text="Status"/>
+        </columns>
+    </TableView>
     <HBox alignment="CENTER" spacing="10">
         <Button onAction="#zmienStatusNaZrobione" text="Zmień na 'Wykonane'" />
         <Button onAction="#zmienStatusNaOczekuje" text="Zmień na 'Oczekuje'" />

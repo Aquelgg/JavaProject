@@ -4,20 +4,14 @@ import com.projektjava.db.DatabaseConnector;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*; // Import all controls
+import javafx.scene.control.cell.PropertyValueFactory; // For TableView
 import javafx.stage.Stage;
 import javafx.scene.Node;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.ComboBox;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +24,17 @@ import java.util.Optional;
 public class MainController {
 
     @FXML
-    private ListView<String> zadaniaListView;
+    private TableView<Task> zadaniaTableView;
+    @FXML
+    private TableColumn<Task, Integer> idZadaniaColumn;
+    @FXML
+    private TableColumn<Task, String> tytulColumn;
+    @FXML
+    private TableColumn<Task, String> opisColumn;
+    @FXML
+    private TableColumn<Task, LocalDate> dataWykonaniaColumn;
+    @FXML
+    private TableColumn<Task, String> statusColumn;
 
     @FXML
     private Label imieLabel;
@@ -60,8 +64,23 @@ public class MainController {
 
     @FXML
     private void initialize() {
+        // Initialize TableView columns
+        idZadaniaColumn.setCellValueFactory(new PropertyValueFactory<>("idZadania"));
+        tytulColumn.setCellValueFactory(new PropertyValueFactory<>("tytul"));
+        opisColumn.setCellValueFactory(new PropertyValueFactory<>("opis"));
+        dataWykonaniaColumn.setCellValueFactory(new PropertyValueFactory<>("dataWykonania"));
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+
         ObservableList<String> statusy = FXCollections.observableArrayList("oczekuje", "wykonane");
         statusEdycjaComboBox.setItems(statusy);
+
+        zadaniaTableView.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        parseAndPopulateEditFields(newValue);
+                    }
+                }
+        );
     }
 
     public void ustawDaneUzytkownika(String imie, String email, int id_uzytkownika) {
@@ -72,7 +91,7 @@ public class MainController {
     }
 
     private void zaladujZadaniaUzytkownika() {
-        ObservableList<String> listaZadan = FXCollections.observableArrayList();
+        ObservableList<Task> listaZadan = FXCollections.observableArrayList();
 
         try (Connection conn = DatabaseConnector.connect()) {
             String query = "SELECT pz.id_zadania, z.tytul, z.opis, z.data_wykonania, z.status " +
@@ -85,13 +104,13 @@ public class MainController {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
+                int id = rs.getInt("id_zadania");
+                String tytul = rs.getString("tytul");
+                String opis = rs.getString("opis");
+                LocalDate dataWykonania = (rs.getDate("data_wykonania") != null) ? rs.getDate("data_wykonania").toLocalDate() : null;
+                String status = rs.getString("status");
 
-                String zadanie = rs.getInt("id_zadania") + "||" + // Hidden ID marker
-                        "Tytuł: " + rs.getString("tytul") +
-                        ", Opis: " + (rs.getString("opis") != null && !rs.getString("opis").isEmpty() ? rs.getString("opis") : "Brak opisu") +
-                        ", Data wykonania: " + (rs.getDate("data_wykonania") != null ? rs.getDate("data_wykonania") : "Brak daty") +
-                        ", Status: " + rs.getString("status");
-                listaZadan.add(zadanie);
+                listaZadan.add(new Task(id, tytul, opis, dataWykonania, status));
             }
 
         } catch (SQLException e) {
@@ -99,7 +118,7 @@ public class MainController {
             showAlert(Alert.AlertType.ERROR, "Błąd bazy danych", "Nie udało się załadować zadań: " + e.getMessage());
         }
 
-        zadaniaListView.setItems(listaZadan);
+        zadaniaTableView.setItems(listaZadan);
     }
 
     @FXML
@@ -120,17 +139,13 @@ public class MainController {
 
     @FXML
     private void zmienStatusNaZrobione() {
-        String selectedTask = zadaniaListView.getSelectionModel().getSelectedItem();
+        Task selectedTask = zadaniaTableView.getSelectionModel().getSelectedItem();
         if (selectedTask == null) {
             showAlert(Alert.AlertType.WARNING, "Brak zaznaczenia", "Proszę zaznaczyć zadanie do zmiany statusu.");
             return;
         }
 
-        int taskId = extractTaskId(selectedTask);
-        if (taskId == -1) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się odczytać ID zadania.");
-            return;
-        }
+        int taskId = selectedTask.getIdZadania();
 
         try (Connection conn = DatabaseConnector.connect()) {
             String query = "UPDATE Zadanie SET status = 'wykonane' WHERE id_zadania = ?";
@@ -152,17 +167,13 @@ public class MainController {
 
     @FXML
     private void zmienStatusNaOczekuje() {
-        String selectedTask = zadaniaListView.getSelectionModel().getSelectedItem();
+        Task selectedTask = zadaniaTableView.getSelectionModel().getSelectedItem();
         if (selectedTask == null) {
             showAlert(Alert.AlertType.WARNING, "Brak zaznaczenia", "Proszę zaznaczyć zadanie do zmiany statusu.");
             return;
         }
 
-        int taskId = extractTaskId(selectedTask);
-        if (taskId == -1) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się odczytać ID zadania.");
-            return;
-        }
+        int taskId = selectedTask.getIdZadania();
 
         try (Connection conn = DatabaseConnector.connect()) {
             String query = "UPDATE Zadanie SET status = 'oczekuje' WHERE id_zadania = ?";
@@ -184,17 +195,13 @@ public class MainController {
 
     @FXML
     private void usunZadanie() {
-        String selectedTask = zadaniaListView.getSelectionModel().getSelectedItem();
+        Task selectedTask = zadaniaTableView.getSelectionModel().getSelectedItem();
         if (selectedTask == null) {
             showAlert(Alert.AlertType.WARNING, "Brak zaznaczenia", "Proszę zaznaczyć zadanie do usunięcia.");
             return;
         }
 
-        int taskId = extractTaskId(selectedTask);
-        if (taskId == -1) {
-            showAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się odczytać ID zadania.");
-            return;
-        }
+        int taskId = selectedTask.getIdZadania();
 
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Potwierdź usunięcie");
@@ -292,7 +299,7 @@ public class MainController {
 
     @FXML
     private void rozpocznijEdycje() {
-        String selectedTask = zadaniaListView.getSelectionModel().getSelectedItem();
+        Task selectedTask = zadaniaTableView.getSelectionModel().getSelectedItem();
         if (selectedTask == null) {
             showAlert(Alert.AlertType.WARNING, "Brak zaznaczenia", "Proszę zaznaczyć zadanie do edycji.");
             return;
@@ -356,28 +363,14 @@ public class MainController {
         }
     }
 
-    private void parseAndPopulateEditFields(String taskString) {
+
+    private void parseAndPopulateEditFields(Task task) {
         try {
-            this.selectedTaskIdForEdit = extractTaskId(taskString);
-
-            int visibleStartIndex = taskString.indexOf("||") + 2;
-            String visibleTaskString = taskString.substring(visibleStartIndex);
-
-            String tytul = extractValue(visibleTaskString, "Tytuł:");
-            tytulEdycjaField.setText(tytul);
-
-            String opis = extractValue(visibleTaskString, "Opis:");
-            opisEdycjaArea.setText(opis.equals("Brak opisu") ? "" : opis);
-
-            String dataStr = extractValue(visibleTaskString, "Data wykonania:");
-            if (!dataStr.equals("Brak daty") && !dataStr.isEmpty()) {
-                dataWykonaniaEdycjaPicker.setValue(LocalDate.parse(dataStr));
-            } else {
-                dataWykonaniaEdycjaPicker.setValue(null);
-            }
-
-            String status = extractValue(visibleTaskString, "Status:");
-            statusEdycjaComboBox.getSelectionModel().select(status);
+            this.selectedTaskIdForEdit = task.getIdZadania();
+            tytulEdycjaField.setText(task.getTytul());
+            opisEdycjaArea.setText(task.getOpis());
+            dataWykonaniaEdycjaPicker.setValue(task.getDataWykonania());
+            statusEdycjaComboBox.getSelectionModel().select(task.getStatus());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -386,30 +379,7 @@ public class MainController {
         }
     }
 
-    private String extractValue(String source, String label) {
-        int labelIndex = source.indexOf(label);
-        if (labelIndex == -1) {
-            return "";
-        }
-        int startIndex = labelIndex + label.length();
-        int endIndex = source.indexOf(",", startIndex);
-        if (endIndex == -1) {
-            return source.substring(startIndex).trim();
-        }
-        return source.substring(startIndex, endIndex).trim();
-    }
 
-    private int extractTaskId(String taskString) {
-        try {
-
-            String idPart = taskString.substring(0, taskString.indexOf("||"));
-            return Integer.parseInt(idPart.trim());
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Błąd parsowania", "Nie udało się odczytać ID zadania z formatu listy.");
-            return -1;
-        }
-    }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
